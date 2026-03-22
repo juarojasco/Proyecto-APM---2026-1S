@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "JMS-Automations"
+version = "1.0.0"
+id = "artifacts/jms-automations"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 20592
+
+[services.development]
+run = "pnpm --filter @workspace/jms-automations run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/jms-automations", "run", "build" ]
+publicDir = "artifacts/jms-automations/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "20592"
+BASE_PATH = "/"
