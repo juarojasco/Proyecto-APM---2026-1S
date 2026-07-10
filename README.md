@@ -12,7 +12,6 @@ El objetivo es mantener un registro claro y ordenado del proceso de aprendizaje,
 * Organizar el contenido por módulos o unidades temáticas.
 * Almacenar código fuente, simulaciones y archivos de diseño.
 * Documentar el desarrollo de laboratorios y actividades prácticas.
-* Mantener un historial de cambios mediante Git.
 * Servir como material de consulta para futuras asignaturas o proyectos.
 
 ---
