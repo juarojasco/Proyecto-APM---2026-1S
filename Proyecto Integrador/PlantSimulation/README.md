@@ -37,7 +37,7 @@ Se realizaron dos escenarios de simulación con el fin de analizar el impacto de
 
 |                                    Sin robot                                   |                                   Con robot                                  |
 | :----------------------------------------------------------------------------: | :--------------------------------------------------------------------------: |
-| ![Planta isométrica sin robot](Imagenes/PlantSimulationIsometricaSinRobot.png) | ![Planta isométrica con robot](Imagenes/PlantaSimulationIsometricaRobot.jpeg) |
+| ![Planta isométrica sin robot](Imagenes/PlantSimulationIsometricaSinRobot.png) | ![Planta isométrica con robot](Imagenes/PlantSimulationIsometricaRobot.jpeg) |
 
 ---
 
