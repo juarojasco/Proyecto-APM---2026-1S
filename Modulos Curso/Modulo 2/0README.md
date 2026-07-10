@@ -60,9 +60,3 @@ Material de apoyo sobre la representación de procesos productivos y el diseño 
 ### Taller del Módulo
 
 Este módulo incluye un taller práctico para aplicar los conceptos desarrollados durante las sesiones. La documentación, archivos y soluciones correspondientes se encuentran organizados dentro de la carpeta **Taller** de este módulo.
-
----
-
-## 💡 Recomendación
-
-Se recomienda revisar los recursos en el orden presentado: comenzar con el material introductorio, continuar con el tutorial de **Plant Simulation**, complementar con el artículo de aplicación y, finalmente, desarrollar el taller utilizando los conceptos adquiridos.
