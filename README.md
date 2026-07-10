@@ -27,6 +27,12 @@ Proyecto-APM--2026-1S
 │   └── Modulo 6 - PLC y SCADA
 │
 ├── Proyecto Integrador/
+│   ├── Modulo 1 - Automatizacion en Manufactura
+│   ├── Modulo 2 - Gestion de Produccion
+│   ├── Modulo 3 - Planeacion de Proyectos
+│   ├── Modulo 4 - Celdas de Manufactura
+│   ├── Modulo 5 - Digital Factory
+│   └── Modulo 6 - PLC y SCADA
 │
 └── Recursos/
 ```
