@@ -6,16 +6,16 @@ El objetivo de este repositorio es centralizar toda la documentación, recursos,
 
 ---
 
-## 🎯 Objetivo del curso
+## Objetivo del curso
 
 El curso tiene como propósito aplicar diferentes niveles de automatización y tecnologías de manufactura moderna para diseñar e implementar una solución integral a un problema de automatización industrial, integrando herramientas de simulación, gestión de producción, planeación de proyectos, manufactura digital y control industrial.
 
 ---
 
-## 📚 Estructura del repositorio
+## Estructura del repositorio
 
 ```text
-📦 Automatizacion-Procesos-Manufactura
+Proyecto-APM--2026-1S
 │
 ├── README.md
 ├── Modulos Curso/
@@ -48,13 +48,13 @@ Cada módulo contiene el material de apoyo, bibliografía, recursos audiovisuale
 
 ---
 
-## 🚀 Proyecto Integrador
+## Proyecto Integrador
 
 El eje central de la asignatura es un **proyecto integrador**, en el que se desarrolla una solución a un problema de automatización de procesos de manufactura aplicando los conocimientos adquiridos en cada uno de los módulos. El proyecto evoluciona de manera progresiva durante el semestre y constituye el principal componente de evaluación del curso.
 
 ---
 
-## 🛠️ Herramientas utilizadas
+## Herramientas utilizadas
 
 A lo largo del curso se emplean diferentes herramientas de ingeniería, entre ellas:
 
