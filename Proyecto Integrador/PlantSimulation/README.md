@@ -21,7 +21,7 @@ Se realizaron dos escenarios de simulación con el fin de analizar el impacto de
 
 |                              Sin robot                             |                             Con robot                             |
 | :----------------------------------------------------------------: | :---------------------------------------------------------------: |
-| ![Gráfica de tiempo sin robot](Imagenes/GraficaTiempoSinRobot.jpeg) | ![Gráfica de tiempo con robot](Imagenes/GraficaTiempodeRobot.jpeg) |
+| ![Gráfica de tiempo sin robot](Imagenes/GraficaTiemposSinRobot.png) | ![Gráfica de tiempo con robot](Imagenes/GraficaTiemposdeRobot.png) |
 
 ---
 
