@@ -1,51 +1,70 @@
-# Repositorio del Proyecto Académico
+# Automatización de Procesos de Manufactura
 
-Bienvenido a este repositorio, creado para organizar de manera estructurada todo el material desarrollado durante el proyecto académico. Aquí se recopilan apuntes, ejercicios, laboratorios, código, simulaciones, documentación y demás recursos generados a lo largo del curso.
+Repositorio académico del curso **Automatización de Procesos de Manufactura** de la **Universidad Nacional de Colombia**, desarrollado como soporte al proyecto integrador del semestre.
 
-El objetivo es mantener un registro claro y ordenado del proceso de aprendizaje, facilitando el acceso a la información, el seguimiento del progreso y la reutilización del material en proyectos futuros.
-
----
-
-## Objetivos del repositorio
-
-* Centralizar toda la documentación del proyecto.
-* Organizar el contenido por módulos o unidades temáticas.
-* Almacenar código fuente, simulaciones y archivos de diseño.
-* Documentar el desarrollo de laboratorios y actividades prácticas.
-* Servir como material de consulta para futuras asignaturas o proyectos.
+El objetivo de este repositorio es centralizar toda la documentación, recursos, prácticas, talleres, simulaciones y avances del proyecto, manteniendo un historial organizado del desarrollo del curso mediante Git y GitHub.
 
 ---
 
-## Organización del repositorio
+## 🎯 Objetivo del curso
 
-Cada carpeta principal corresponde a un módulo del curso y contiene los recursos asociados a ese tema.
+El curso tiene como propósito aplicar diferentes niveles de automatización y tecnologías de manufactura moderna para diseñar e implementar una solución integral a un problema de automatización industrial, integrando herramientas de simulación, gestión de producción, planeación de proyectos, manufactura digital y control industrial.
 
 ---
 
-## Herramientas utilizadas
+## 📚 Estructura del repositorio
 
-Dependiendo del módulo, este repositorio puede incluir archivos desarrollados con herramientas como:
+```text
+📦 Automatizacion-Procesos-Manufactura
+│
+├── README.md
+├── Modulos Curso/
+│   ├── Modulo 1 - Automatizacion en Manufactura
+│   ├── Modulo 2 - Gestion de Produccion
+│   ├── Modulo 3 - Planeacion de Proyectos
+│   ├── Modulo 4 - Celdas de Manufactura
+│   ├── Modulo 5 - Digital Factory
+│   └── Modulo 6 - PLC y SCADA
+│
+├── Proyecto Integrador/
+│
+└── Recursos/
+```
 
-* GitHub
-* Siemens NX
-* Studio 5000
-* ABB Robot Studio
+---
+
+## Contenido del curso
+
+El repositorio está organizado siguiendo la estructura del programa de la asignatura:
+
+* **Módulo 1:** Automatización en Manufactura
+* **Módulo 2:** Gestión de Producción
+* **Módulo 3:** Planeación y Evaluación de Proyectos
+* **Módulo 4:** Celdas de Manufactura Robotizadas
+* **Módulo 5:** Digital Factory
+* **Módulo 6:** PLC y SCADA
+
+Cada módulo contiene el material de apoyo, bibliografía, recursos audiovisuales, talleres, ejercicios y archivos desarrollados durante el curso.
+
+---
+
+## 🚀 Proyecto Integrador
+
+El eje central de la asignatura es un **proyecto integrador**, en el que se desarrolla una solución a un problema de automatización de procesos de manufactura aplicando los conocimientos adquiridos en cada uno de los módulos. El proyecto evoluciona de manera progresiva durante el semestre y constituye el principal componente de evaluación del curso.
+
+---
+
+## 🛠️ Herramientas utilizadas
+
+A lo largo del curso se emplean diferentes herramientas de ingeniería, entre ellas:
+
+* Siemens Tecnomatix Plant Simulation
+* Siemens NX Mechatronics Concept Designer
+* Studio 5000 - PLC y programación Ladder
 * Node Red
-* Azure
-* Office
-* Plant Simulation
-* Diseño Web
+* GitHub
 * Draw.io
-
----
-
-## Convenciones
-
-Para mantener una estructura consistente se siguen las siguientes reglas:
-
-* Los nombres de las carpetas utilizan el formato `Modulo_XX`.
-* Los archivos se nombran de forma descriptiva.
-* Las imágenes y recursos multimedia se almacenan dentro de la carpeta del módulo correspondiente.
+* Azure
 
 ---
 
@@ -60,6 +79,4 @@ Para mantener una estructura consistente se siguen las siguientes reglas:
 
 ---
 
-## Licencia
-
-Este repositorio tiene fines exclusivamente académicos. El contenido puede utilizarse como material de estudio, citando la fuente cuando corresponda.
+> *Este repositorio documenta el desarrollo del proyecto integrador y el proceso de aprendizaje del curso, organizando de forma estructurada los recursos y entregables de cada módulo.*
