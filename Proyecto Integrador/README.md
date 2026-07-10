@@ -16,6 +16,7 @@ El proyecto tiene como objetivo diseñar, modelar, simular e integrar una soluci
 | **Lógica de Control** | Programas, diagramas y documentación relacionada con la lógica de control implementada para el funcionamiento del sistema automatizado.                                        |
 | **ABB Robot Studio**  | Modelos, estaciones de trabajo y programas desarrollados en ABB RobotStudio para la simulación y programación del robot industrial.                                            |
 | **Node-RED**          | Flujos, interfaces y configuraciones desarrolladas en Node-RED para la comunicación, supervisión e integración de los diferentes componentes del proyecto.                     |
+| ☁️ **Azure** | Desarrollo e integración del **Manufacturing Execution System (MES)** utilizando servicios de Microsoft Azure, incluyendo aplicaciones, bases de datos, APIs y comunicación con los diferentes componentes del sistema automatizado. |
 
 ---
 
