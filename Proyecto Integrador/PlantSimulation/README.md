@@ -21,7 +21,7 @@ Se realizaron dos escenarios de simulación con el fin de analizar el impacto de
 
 |                              Sin robot                             |                             Con robot                             |
 | :----------------------------------------------------------------: | :---------------------------------------------------------------: |
-| ![Gráfica de tiempo sin robot](Imagenes/GraficaTiempoSinRobot.png) | ![Gráfica de tiempo con robot](Imagenes/GraficaTiempodeRobot.png) |
+| ![Gráfica de tiempo sin robot](Imagenes/GraficaTiempoSinRobot.jpeg) | ![Gráfica de tiempo con robot](Imagenes/GraficaTiempodeRobot.jpeg) |
 
 ---
 
@@ -37,7 +37,7 @@ Se realizaron dos escenarios de simulación con el fin de analizar el impacto de
 
 |                                    Sin robot                                   |                                   Con robot                                  |
 | :----------------------------------------------------------------------------: | :--------------------------------------------------------------------------: |
-| ![Planta isométrica sin robot](Imagenes/PlantSimulationIsometricaSinRobot.png) | ![Planta isométrica con robot](Imagenes/PlantaSimulationIsometricaRobot.png) |
+| ![Planta isométrica sin robot](Imagenes/PlantSimulationIsometricaSinRobot.png) | ![Planta isométrica con robot](Imagenes/PlantaSimulationIsometricaRobot.jpeg) |
 
 ---
 
