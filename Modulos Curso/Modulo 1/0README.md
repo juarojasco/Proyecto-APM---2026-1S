@@ -13,13 +13,15 @@ Este módulo introduce los fundamentos de la automatización aplicada a los proc
 
 Como introducción al módulo, se recomienda visualizar el siguiente video:
 
-**Introducción a la Industria 4.0**
+* **Introducción a la Industria 4.0:** https://www.youtube.com/watch?v=3u2cRRMlG7Q&authuser=0
 
-https://www.youtube.com/watch?v=3u2cRRMlG7Q&authuser=0
+---
 
-## Bibliografía recomendada
+## Bibliografía y recursos
 
 ### Implementando Industria 4.0
+
+**Recurso:** https://drive.google.com/file/d/16rmkgFt73K8GAmjrE5CcxjhsIWhE-LiQ/view?usp=classroom_web&authuser=0
 
 Para el desarrollo del proyecto, son especialmente útiles los siguientes capítulos:
 
@@ -30,10 +32,19 @@ Para el desarrollo del proyecto, son especialmente útiles los siguientes capít
 
 Estos capítulos proporcionan conceptos y metodologías relevantes para la implementación de soluciones de Industria 4.0 en entornos de manufactura.
 
+---
+
 ### Industria 5.0
+
+**Recurso:** https://drive.google.com/file/d/1d3TYlGwHlaZucSRPhneuEOt6KH6T9xUg/view?usp=classroom_web&authuser=0
 
 Este libro presenta la evolución tecnológica desde la Industria 3.0 hasta la Industria 5.0, ofreciendo una base teórica para comprender las tendencias actuales y futuras de la automatización industrial.
 
+---
+
 ### Internet de las Cosas (IoT)
 
+**Recurso:** https://drive.google.com/file/d/1Nwx-zP5ybIduHZFlk_GrFsff1UqBXy3y/view?usp=classroom_web&authuser=0
+
 El libro de IoT describe los fundamentos de esta tecnología, su funcionamiento y la dirección hacia la que evoluciona, destacando su importancia dentro de los sistemas industriales inteligentes.
+
