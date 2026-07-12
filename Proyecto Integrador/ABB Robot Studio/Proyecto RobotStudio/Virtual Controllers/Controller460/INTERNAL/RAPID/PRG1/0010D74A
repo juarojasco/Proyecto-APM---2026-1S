@@ -1,0 +1,203 @@
+MODULE Module1
+    CONST robtarget Home:=[[1305,0,-497],[0,0,1,0],[0,0,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    CONST robtarget Target_10_2:=[[-150,1355.932739642,-159.936186208],[0,0,1,0],[1,0,1,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    CONST robtarget Target_10:=[[-150,1355.932739642,-579.936186208],[0,0,1,0],[1,0,1,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    CONST robtarget Target_20:=[[-685.53959866,-1494.337229442,-911.485646006],[0,0.725374371,0.688354576,0],[-2,0,-1,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    CONST robtarget Home_4:=[[1105,-350,-827],[0,0,1,0],[0,0,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    CONST robtarget Home_4_sheet:=[[1605,-50,-377],[0,0.707106781,0.707106781,0],[0,0,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    !***********************************************************
+    !
+    ! Module:  Module1
+    !
+    ! Description:
+    !   <Insert description here>
+    !
+    ! Author: Compa
+    !
+    ! Version: 1.0
+    !
+    !***********************************************************
+    
+    
+    !***********************************************************
+    !
+    ! Procedure main
+    !
+    !   This is the entry point of your program
+    !
+    !***********************************************************
+    PROC main()
+         VAR robtarget palletpos := Home_4;
+         VAR robtarget palletposa :=Home_4;
+         VAR robtarget sheetpallet := Home_4_sheet;
+         VAR robtarget sheetpalleta := Home_4_sheet;
+         VAR robtarget pos_sheet := Target_20;
+         VAR robtarget pos_sheeta := Target_20;
+        Reset DO_Start;
+        Reset DO_Pieza;
+        Reset DO_Attatch;
+        Reset DO_Dettatch;
+        Reset DO_Attatch_Sheet;
+        Reset DO_Dettatch_Sheet;
+        
+        
+
+        
+        WHILE TRUE DO
+            
+            IF DI_INIT=1 THEN
+                Path_10;
+                
+                FOR k FROM 0 TO 4 DO
+                    Reset DO_Dettatch_Sheet;
+                    
+                    
+                    FOR i FROM 0 TO 2 DO
+                        Set DO_Start;
+                        WaitTime 0.1;
+                        Reset DO_Start;
+                        Path_30;
+                
+                        Path_20;
+                        WaitTime 1;
+                        Set DO_Attatch;
+                        WaitTime 1;
+                        Path_30;
+                        Reset DO_Attatch;
+                        
+                        palletposa := Offs(palletpos, 0, i*260, k*380+400);
+                        
+                        MoveJ palletposa, v7000, fine, tGripper\WObj:=wobj0;
+                        
+                        palletposa := Offs(palletpos, 0, i*260, k*380);
+                        MoveL palletposa, v7000, fine, tGripper\WObj:=wobj0;
+                        
+                        WaitTime 0.5;
+                        Set DO_Dettatch;
+                        WaitTime 0.5;
+                        palletposa := Offs(palletpos, 0, i*260, k*380+400);
+                        MoveL palletposa, v7000, fine, tGripper\WObj:=wobj0;
+                        Reset DO_Dettatch;
+                        
+                        
+                        
+                        
+                    ENDFOR
+                    
+                    
+                    
+                    
+                    FOR i FROM 0 TO 2 DO
+                        Set DO_Start;
+                        WaitTime 0.1;
+                        Reset DO_Start;
+                        Path_30;
+                
+                        Path_20;
+                        WaitTime 1;
+                        Set DO_Attatch;
+                        WaitTime 1;
+                        Path_30;
+                        Reset DO_Attatch;
+                        
+                        palletposa := Offs(palletpos, 400, i*260, k*380+400);
+                        
+                        MoveJ palletposa, v7000, fine, tGripper\WObj:=wobj0;
+                        
+                        palletposa := Offs(palletpos, 400, i*260, k*380);
+                        MoveL palletposa, v7000, fine, tGripper\WObj:=wobj0;
+                        
+                        WaitTime 0.5;
+                        Set DO_Dettatch;
+                        WaitTime 0.5;
+                        palletposa := Offs(palletpos, 400, i*260, k*380+400);
+                        MoveL palletposa, v7000, fine, tGripper\WObj:=wobj0;
+                        Reset DO_Dettatch;
+                        
+                        
+                        
+                        
+                    ENDFOR
+                    FOR i FROM 0 TO 2 DO
+                        Set DO_Start;
+                        WaitTime 0.1;
+                        Reset DO_Start;
+                        Path_30;
+                
+                        Path_20;
+                        WaitTime 1;
+                        Set DO_Attatch;
+                        WaitTime 1;
+                        Path_30;
+                        Reset DO_Attatch;
+                        
+                        palletposa := Offs(palletpos, 800, i*260, k*380+400);
+                        
+                        MoveJ palletposa, v7000, fine, tGripper\WObj:=wobj0;
+                        
+                        palletposa := Offs(palletpos, 800, i*260, k*380);
+                        MoveJ palletposa, v7000, fine, tGripper\WObj:=wobj0;
+                        
+                        WaitTime 0.5;
+                        Set DO_Dettatch;
+                        WaitTime 0.5;
+                        palletposa := Offs(palletpos, 800, i*260, k*380+400);
+                        MoveL palletposa, v7000, fine, tGripper\WObj:=wobj0;
+                        Reset DO_Dettatch;
+                        
+                        
+                        
+                        
+                    ENDFOR
+                    
+                    sheetpalleta := Offs(sheetpallet, 0, 0, k*380);
+                    pos_sheeta := Offs(pos_sheet, 0, 0, k*380+800);
+                    
+                    MoveJ pos_sheeta, v7000, fine, tGripper\WObj:=wobj0;
+                    
+                    
+                    
+                    
+                    MoveJ Target_20, v7000, fine, tGripper\WObj:=wobj0;
+                    WaitTime 1;
+                    Set DO_Attatch_Sheet;
+                    WaitTime 1;
+                    Reset DO_Attatch_Sheet;
+                    MoveJ pos_sheeta, v7000, fine, tGripper\WObj:=wobj0;
+                    WaitTime 1;
+                    MoveJ sheetpalleta, v7000, fine, tGripper\WObj:=wobj0;
+                    WaitTime 1;
+                    Set DO_Dettatch_Sheet;
+                    WaitTime 1;
+                ENDFOR
+                Set DO_Finish;
+                WaitTime 1;
+                Reset DO_Finish;
+                                 
+            ENDIF
+            
+            
+        ENDWHILE
+        
+    ENDPROC
+    PROC Path_10()
+        MoveL Home,v7000,z10,tGripper\WObj:=wobj0;
+
+    ENDPROC
+    PROC Path_20()
+        MoveL Target_10,v7000,z10,tGripper\WObj:=wobj0;
+
+    ENDPROC
+    PROC Path_30()
+        MoveJ Target_10_2,v7000,z10,tGripper\WObj:=wobj0;
+    ENDPROC
+    PROC Path_40()
+        MoveL Home_4,v7000,z10,tGripper\WObj:=wobj0;
+    ENDPROC
+    PROC Path_50()
+        MoveL Target_20,v7000,z100,tGripper\WObj:=wobj0;
+    ENDPROC
+    PROC Path_60()
+        MoveL Home_4_sheet,v7000,z100,tGripper\WObj:=wobj0;
+    ENDPROC
+ENDMODULE
