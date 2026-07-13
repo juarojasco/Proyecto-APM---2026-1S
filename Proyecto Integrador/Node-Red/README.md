@@ -12,7 +12,7 @@ Como resultado de esta integración, se desarrolló un **SCADA (Supervisory Cont
 | --------------------- | ----------------------------------------------------------------------------------------------- |
 | **Flujo Node-RED** | Flujo desarrollado para integrar la comunicación entre los diferentes componentes del proyecto. |
 | **SCADA**         | Interfaces desarrolladas para la supervisión y monitoreo del proceso productivo.                |
-| **Flujo de Node-Red**       | Archivo JSON que representa el flujo usado.                          |
+| **flujo.json**       | Archivo JSON que representa el flujo usado en Node-Red.                          |
 
 ---
 
