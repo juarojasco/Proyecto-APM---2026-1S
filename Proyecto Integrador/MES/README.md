@@ -6,11 +6,15 @@ El MES fue desarrollado utilizando **React.js** para el frontend y **Node.js** p
 
 ---
 
-## Acceso al MES
-
-El sistema puede consultarse en el siguiente enlace:
+## Acceso al Dashboard del MES
 
 **https://blue-coast-0ae297c10.7.azurestaticapps.net/**
+
+---
+
+## Acceso al Repositorio de MES
+
+**  https://github.com/Miguel-Parrado/AzureAPM**
 
 ---
 
