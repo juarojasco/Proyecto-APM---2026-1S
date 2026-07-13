@@ -12,6 +12,7 @@ Como complemento, se desarrolla un Manufacturing Execution System (MES) basado e
 
 | Carpeta                  | Descripción                                                                                                                                                                    |
 | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Modelo de Negocios**  | Incluye el modelo canvas del proyecto.                                      |
 | **Plant Simulation**  | Modelos de simulación del sistema de producción desarrollados en Siemens Tecnomatix Plant Simulation, junto con los resultados obtenidos.                                      |
 | **NX Files**          | Modelos y simulaciones desarrollados en Siemens NX Mechatronics Concept Designer (MCD), incluyendo la integración de mecanismos, sensores, actuadores y secuencias de control. |
 | **Modelos 3D**        | Modelos CAD y componentes utilizados para construir el sistema de manufactura y sus diferentes estaciones.                                                                     |
