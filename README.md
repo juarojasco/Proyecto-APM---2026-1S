@@ -27,6 +27,7 @@ Proyecto-APM--2026-1S
 │   └── Modulo 6 - PLC y SCADA
 │
 ├── Proyecto Integrador/
+│   ├── Modelo de Negocios
 │   ├── Plant Simulation
 │   ├── NX Files
 │   ├── Modelos 3D
