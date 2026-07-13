@@ -66,7 +66,7 @@ El eje central de la asignatura es un **proyecto integrador**, en el que se desa
 Además de la documentación contenida en este repositorio, el proyecto cuenta con un sitio web donde se presenta una descripción general de la solución desarrollada, la arquitectura del sistema, los módulos implementados y el equipo de trabajo.
 
 * **Sitio web del proyecto:**
-  https://juarojasco.github.io/APM-website/MES.html
+  https://juarojasco.github.io/APM-website/
 
 * **Repositorio del sitio web:**
   https://github.com/juarojasco/APM-website
