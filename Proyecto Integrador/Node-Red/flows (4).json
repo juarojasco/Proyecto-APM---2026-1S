@@ -1,0 +1,1524 @@
+[
+    {
+        "id": "tab0001scada",
+        "type": "tab",
+        "label": "00 · Config / PLC",
+        "disabled": false,
+        "info": "Configuración central, motor de simulación y scaffold EtherNet/IP."
+    },
+    {
+        "id": "c0011scada",
+        "type": "comment",
+        "z": "tab0001scada",
+        "name": "CONFIG CENTRAL ",
+        "info": "",
+        "x": 370,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "i0012scada",
+        "type": "inject",
+        "z": "tab0001scada",
+        "name": "Al desplegar",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": "0.5",
+        "topic": "",
+        "payload": "true",
+        "payloadType": "bool",
+        "x": 130,
+        "y": 100,
+        "wires": [
+            [
+                "f0013scada"
+            ]
+        ]
+    },
+    {
+        "id": "f0013scada",
+        "type": "function",
+        "z": "tab0001scada",
+        "name": "[SCADA-CFG] Configuración central (7 estaciones)",
+        "func": "// =====================================================================\n// [SCADA-CFG] CONFIGURACIÓN CENTRAL — EDITAR AQUÍ TODOS LOS PARÁMETROS\n// Línea de embotellado · 7 estaciones · solo PLC real (sin simulación)\n// Contexto en MEMORIA: el histórico de largo plazo vive en Azure vía Ignition.\n// =====================================================================\nconst cfg = {\n    // Estaciones en orden físico de la línea. key = prefijo de sus tags HMI_<key>_Estado\n    stations: [\n        { key: 'LLEN',    name: 'Llenadora' },\n        { key: 'TAP',     name: 'Tapadora' },\n        { key: 'INS_NIV', name: 'Inspección Nivel/Tapa' },\n        { key: 'ETICOD',  name: 'Etiquetado/Codificado' },\n        { key: 'INS_FIN', name: 'Inspección Final' },\n        { key: 'EMP',     name: 'Empaque' },\n        { key: 'PAL',     name: 'Paletizado' }\n    ],\n    // Tiempo de ciclo ideal por estación (s/botella) — el máximo define el Rendimiento\n    cycleSec: [2.0, 1.5, 1.0, 2.5, 1.0, 3.0, 4.0],\n    targetPerHour: 400,             // objetivo de producción (botellas buenas/hora)\n    pollSec: 0.5,                   // DEBE coincidir con cycletime (ms/1000) del endpoint Jeison\n    sampleSec: 15,                  // periodo de muestreo de las gráficas de tendencia\n    // Códigos de estado de estación (DINT) según el PLC:\n    stateCodes: { 0: 'DESHABILITADA', 10: 'LISTA', 20: 'EN OPERACIÓN', 30: 'CICLO COMPLETADO', 90: 'FALLA' },\n    // ------------- [SCADA-TAGS] NOMBRES DE TAGS DEL PLC (EtherNet/IP) -------------\n    tags: {\n        cmdStart: 'HMI_CMD_Start',\n        cmdStop:  'HMI_CMD_Stop',\n        cmdReset: 'HMI_CMD_Reset',           // limpia alarmas (panel local + pulso al PLC)\n        lineRunning: 'HMI_Linea_Running',    // HMI_Linea_Detenida omitido: complemento exacto\n        lineFault:   'HMI_Linea_Fault',      // ESTADO de línea (pinta el mímico), no alarma\n        lineSetup:   'HMI_Linea_EnSetup',\n        stationState: k => 'HMI_' + k + '_Estado',\n        counters: {\n            good:        'HMI_PROD_BotellasBuenas',\n            rejNivel:    'HMI_PROD_RechazoNivelTapa',\n            rejEtiqueta: 'HMI_PROD_RechazoEtiquetaCodigo',\n            rejTotal:    'HMI_PROD_TotalRechazos',\n            packs:       'HMI_PROD_PacksFormados',\n            pallets:     'HMI_PROD_PalletsCompletos'\n        },\n        // Alarmas = espejo directo de tags BOOL del PLC (sin umbrales locales).\n        // INS_NIV no tiene tag de falla: intencional, esa estación no alarma.\n        alarms: [\n            { tag: 'ALM_General_FallaLinea', code: 'GEN',    text: 'Falla general de línea' },\n            { tag: 'ALM_LLEN_Falla',         code: 'LLEN',   text: 'Falla de llenadora' },\n            { tag: 'ALM_TAP_Falla',          code: 'TAP',    text: 'Falla de tapadora' },\n            { tag: 'ALM_ETICOD_Falla',       code: 'ETICOD', text: 'Falla de etiquetado/codificado' },\n            { tag: 'ALM_INS_FIN_Falla',      code: 'INSFIN', text: 'Falla de inspección final' },\n            { tag: 'ALM_EMP_Falla',          code: 'EMP',    text: 'Falla de empaque' },\n            { tag: 'ALM_PAL_Falla',          code: 'PAL',    text: 'Falla de robot/paletizado' }\n        ]\n    }\n};\nglobal.set('scada_cfg', cfg);\n\n// Estado inicial (solo si no existe: sobrevive re-deploys, NO reinicios de Node-RED)\nif (!global.get('scada_plant')) {\n    global.set('scada_plant', {\n        line: { running: false, fault: false, setup: false },\n        stations: cfg.stations.map(s => ({ key: s.key, name: s.name, code: 0 })),\n        counters: { good: 0, rejNivel: 0, rejEtiqueta: 0, rejTotal: 0, packs: 0, pallets: 0 },\n        // Disponibilidad = (op + setup) / total  — acordado con el usuario\n        time: { total: 0, op: 0, setup: 0 }\n    });\n}\nif (!global.get('scada_alarms')) global.set('scada_alarms', []);\n\nnode.status({ fill: 'green', shape: 'dot', text: 'Config cargada · 7 estaciones · PLC' });\nreturn { topic: 'config', payload: 'config_ok' };",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 450,
+        "y": 100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "l0016scada",
+        "type": "link out",
+        "z": "tab0001scada",
+        "name": "» plant",
+        "mode": "link",
+        "links": [
+            "l0020scada",
+            "l0023scada",
+            "l002ascada",
+            "l0039scada"
+        ],
+        "x": 695,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "l0017scada",
+        "type": "link in",
+        "z": "tab0001scada",
+        "name": "« comandos UI",
+        "links": [
+            "l0029scada"
+        ],
+        "x": 135,
+        "y": 260,
+        "wires": [
+            [
+                "f0018scada"
+            ]
+        ]
+    },
+    {
+        "id": "f0018scada",
+        "type": "function",
+        "z": "tab0001scada",
+        "name": "[SCADA-CMD] Aplicar comando (start/stop/reset)",
+        "func": "// [SCADA-CMD] Comandos de la UI: start / stop / reset de alarmas.\n// Salida 1: eco (debug). Salida 2: escritura al PLC.\nconst p = global.get('scada_plant');\nswitch (msg.topic) {\n    case 'cmd/start':\n    case 'cmd/stop':\n        break;                               // el estado real lo confirma el PLC vía lectura\n    case 'cmd/reset':\n        global.set('scada_alarms', []);      // limpia el panel local; el PLC recibe el pulso\n        break;\n    default: return null;\n}\nnode.status({ fill: 'blue', shape: 'dot', text: msg.topic });\nreturn [msg, msg];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 370,
+        "y": 260,
+        "wires": [
+            [
+                "d0019scada"
+            ],
+            [
+                "f001escada"
+            ]
+        ]
+    },
+    {
+        "id": "d0019scada",
+        "type": "debug",
+        "z": "tab0001scada",
+        "name": "eco comando",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "topic",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 720,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "c001ascada",
+        "type": "comment",
+        "z": "tab0001scada",
+        "name": " PLC (EtherNet/IP)",
+        "info": "",
+        "x": 430,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "f001dscada",
+        "type": "function",
+        "z": "tab0001scada",
+        "name": "[SCADA-PLC-READ] Tags → plant",
+        "func": "// [SCADA-PLC-READ] Tags EtherNet/IP -> objeto 'plant' + acumulación de tiempos.\n// Se ejecuta a cada ciclo de polling del endpoint (pollSec). Payload esperado\n// en modo \"all\": objeto plano { nombreTag: valor }. Verificar con el debug.\nconst cfg = global.get('scada_cfg');\nconst p   = global.get('scada_plant');\nif (!cfg || !p) return null;\nconst t = msg.payload;\nif (typeof t !== 'object' || t === null) return null;\n\n// --- Estado de línea ---\np.line.running = !!t[cfg.tags.lineRunning];\np.line.fault   = !!t[cfg.tags.lineFault];\np.line.setup   = !!t[cfg.tags.lineSetup];\n\n// --- Estado por estación (DINT: 0/10/20/30/90) ---\np.stations.forEach(st => {\n    const v = t[cfg.tags.stationState(st.key)];\n    if (v !== undefined) st.code = v;\n});\n\n// --- Contadores de producción (los lleva el PLC; aquí solo se reflejan) ---\nfor (const [k, tag] of Object.entries(cfg.tags.counters)) {\n    if (t[tag] !== undefined) p.counters[k] = t[tag];\n}\n\n// --- Bits de alarma crudos (los consume [SCADA-ALM]) ---\np.almBits = {};\ncfg.tags.alarms.forEach(a => { p.almBits[a.code] = !!t[a.tag]; });\n\n// --- Tiempos para Disponibilidad: A = (op + setup) / total ---\n// 'total' corre siempre que el PLC responde (planta encendida).\np.time.total += cfg.pollSec;\nif (p.line.running) p.time.op    += cfg.pollSec;\nif (p.line.setup)   p.time.setup += cfg.pollSec;\n\nglobal.set('scada_plant', p);\nnode.status({ fill: p.line.fault ? 'red' : (p.line.running ? 'green' : 'grey'),\n              shape: 'dot',\n              text: (p.line.fault ? 'FALLA' : (p.line.setup ? 'SETUP' : (p.line.running ? 'RUN' : 'STOP')))\n                    + ' · ' + p.counters.good + ' bot.' });\nreturn { topic: 'plant', payload: p };",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 420,
+        "wires": [
+            [
+                "l0016scada"
+            ]
+        ]
+    },
+    {
+        "id": "f001escada",
+        "type": "function",
+        "z": "tab0001scada",
+        "name": "[SCADA-PLC-WRITE] Comando → tag",
+        "func": "// [SCADA-PLC-WRITE] Traduce comandos de la UI a escrituras de tags del PLC.\nconst cfg = global.get('scada_cfg');\nif (!cfg) return null;\nconst map = {\n    'cmd/start': cfg.tags.cmdStart,\n    'cmd/stop':  cfg.tags.cmdStop,\n    'cmd/reset': cfg.tags.cmdReset\n};\nconst tag = map[msg.topic];\nif (!tag) return null;\n// El PLC debe auto-resetear estos BOOL tras consumirlos (pulso).\nreturn { payload: true, variable: tag };",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 760,
+        "y": 300,
+        "wires": [
+            [
+                "p001fscada"
+            ]
+        ]
+    },
+    {
+        "id": "p001fscada",
+        "type": "eth-ip out",
+        "z": "tab0001scada",
+        "endpoint": "8c2283552180792c",
+        "variable": "SCADA_Start",
+        "program": "",
+        "name": "Escritura tags PLC (Jeison)",
+        "x": 1060,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "a08e922ee319bca0",
+        "type": "OpcUa-Browser",
+        "z": "tab0001scada",
+        "endpoint": "5dce1354a1b1dc12",
+        "item": "",
+        "datatype": "",
+        "topic": "ns=2;s=[Sample_Tags]",
+        "items": [],
+        "name": "",
+        "x": 330,
+        "y": 700,
+        "wires": [
+            [
+                "cf275aea22435c3a"
+            ]
+        ]
+    },
+    {
+        "id": "14013b0af5b4e2e1",
+        "type": "comment",
+        "z": "tab0001scada",
+        "name": "Conexion OPC UA para Ignition",
+        "info": "",
+        "x": 330,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "cf275aea22435c3a",
+        "type": "debug",
+        "z": "tab0001scada",
+        "name": "debug 14",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 520,
+        "y": 700,
+        "wires": []
+    },
+    {
+        "id": "bd038d7ec56d830a",
+        "type": "inject",
+        "z": "tab0001scada",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 120,
+        "y": 700,
+        "wires": [
+            [
+                "a08e922ee319bca0"
+            ]
+        ]
+    },
+    {
+        "id": "96047d332a763e55",
+        "type": "OpcUa-Item",
+        "z": "tab0001scada",
+        "item": "ns=2;s=[Sample_Tags]/DI_Palet",
+        "datatype": "Boolean",
+        "value": "",
+        "name": "",
+        "x": 320,
+        "y": 800,
+        "wires": [
+            [
+                "86c9d70726505e78"
+            ]
+        ]
+    },
+    {
+        "id": "92745392d3f9e291",
+        "type": "inject",
+        "z": "tab0001scada",
+        "name": "Suscripcion",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 800,
+        "wires": [
+            [
+                "96047d332a763e55"
+            ]
+        ]
+    },
+    {
+        "id": "86c9d70726505e78",
+        "type": "OpcUa-Client",
+        "z": "tab0001scada",
+        "endpoint": "5dce1354a1b1dc12",
+        "action": "subscribe",
+        "deadbandtype": "a",
+        "deadbandvalue": 1,
+        "time": 10,
+        "timeUnit": "s",
+        "certificate": "n",
+        "localfile": "",
+        "localkeyfile": "",
+        "securitymode": "None",
+        "securitypolicy": "None",
+        "useTransport": false,
+        "maxChunkCount": 1,
+        "maxMessageSize": 8192,
+        "receiveBufferSize": 8192,
+        "sendBufferSize": 8192,
+        "setstatusandtime": false,
+        "keepsessionalive": false,
+        "name": "",
+        "applicationName": "",
+        "applicationUri": "",
+        "x": 520,
+        "y": 800,
+        "wires": [
+            [
+                "74e21c99787e2b7b"
+            ],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "74e21c99787e2b7b",
+        "type": "debug",
+        "z": "tab0001scada",
+        "name": "debug 15",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 740,
+        "y": 780,
+        "wires": []
+    },
+    {
+        "id": "0c334d344985392a",
+        "type": "inject",
+        "z": "tab0001scada",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "0",
+        "payloadType": "num",
+        "x": 110,
+        "y": 920,
+        "wires": [
+            [
+                "d9689f3b7b7bfb66"
+            ]
+        ]
+    },
+    {
+        "id": "d9689f3b7b7bfb66",
+        "type": "OpcUa-Item",
+        "z": "tab0001scada",
+        "item": "ns=2;s=[Sample_Tags]/DI_Palet",
+        "datatype": "Boolean",
+        "value": "",
+        "name": "",
+        "x": 300,
+        "y": 920,
+        "wires": [
+            [
+                "dd899e501cb93773"
+            ]
+        ]
+    },
+    {
+        "id": "dd899e501cb93773",
+        "type": "OpcUa-Client",
+        "z": "tab0001scada",
+        "endpoint": "5dce1354a1b1dc12",
+        "action": "write",
+        "deadbandtype": "a",
+        "deadbandvalue": 1,
+        "time": 10,
+        "timeUnit": "s",
+        "certificate": "n",
+        "localfile": "",
+        "localkeyfile": "",
+        "securitymode": "None",
+        "securitypolicy": "None",
+        "useTransport": false,
+        "maxChunkCount": 1,
+        "maxMessageSize": 8192,
+        "receiveBufferSize": 8192,
+        "sendBufferSize": 8192,
+        "setstatusandtime": false,
+        "keepsessionalive": false,
+        "name": "",
+        "applicationName": "",
+        "applicationUri": "",
+        "x": 520,
+        "y": 920,
+        "wires": [
+            [],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "cd0738003214ae67",
+        "type": "inject",
+        "z": "tab0001scada",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "1",
+        "payloadType": "num",
+        "x": 110,
+        "y": 980,
+        "wires": [
+            [
+                "d9689f3b7b7bfb66"
+            ]
+        ]
+    },
+    {
+        "id": "a5ef148a39ad3c66",
+        "type": "eth-ip in",
+        "z": "tab0001scada",
+        "endpoint": "8c2283552180792c",
+        "mode": "all",
+        "variable": "HMI_CMD_Start",
+        "program": "",
+        "name": "Lectura tags PLC (Jeison)",
+        "x": 330,
+        "y": 540,
+        "wires": [
+            [
+                "27b29669ade8ae27",
+                "f001dscada"
+            ]
+        ]
+    },
+    {
+        "id": "27b29669ade8ae27",
+        "type": "debug",
+        "z": "tab0001scada",
+        "name": "debug 16",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 640,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "tab0002scada",
+        "type": "tab",
+        "label": "01 · KPIs (Disp. y Rend.)",
+        "disabled": false,
+        "info": "Cálculo de disponibilidad, rendimiento, calidad y OEE."
+    },
+    {
+        "id": "l0020scada",
+        "type": "link in",
+        "z": "tab0002scada",
+        "name": "« plant",
+        "links": [
+            "l0016scada"
+        ],
+        "x": 280,
+        "y": 140,
+        "wires": [
+            [
+                "f0021scada"
+            ]
+        ]
+    },
+    {
+        "id": "f0021scada",
+        "type": "function",
+        "z": "tab0002scada",
+        "name": "[SCADA-KPI] Disponibilidad y Rendimiento",
+        "func": "// [SCADA-KPI] Disponibilidad y Rendimiento (OEE total y Calidad eliminados por diseño).\n// Disponibilidad = (t_operación + t_setup) / t_total_encendida   (definición acordada)\n// Rendimiento    = ciclo_ideal_cuello_botella × botellas_procesadas / t_operación\nconst cfg = global.get('scada_cfg');\nif (!cfg || msg.topic !== 'plant') return null;\nconst p = msg.payload;\nconst T = p.time;\nconst A = T.total > 0 ? (T.op + T.setup) / T.total : 0;\nconst procesadas = p.counters.good + p.counters.rejTotal;\nconst ideal = Math.max(...cfg.cycleSec);\nconst P = T.op > 0 ? Math.min((ideal * procesadas) / T.op, 1) : 0;\nconst kpi = { A, P };\nglobal.set('scada_kpi', kpi);\nnode.status({ fill: 'green', shape: 'ring',\n              text: 'A ' + (A * 100).toFixed(1) + '% · P ' + (P * 100).toFixed(1) + '%' });\nreturn { topic: 'kpi', payload: kpi };",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 530,
+        "y": 140,
+        "wires": [
+            [
+                "l0022scada"
+            ]
+        ]
+    },
+    {
+        "id": "l0022scada",
+        "type": "link out",
+        "z": "tab0002scada",
+        "name": "» oee",
+        "mode": "link",
+        "links": [
+            "l0031scada"
+        ],
+        "x": 770,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "tab0003scada",
+        "type": "tab",
+        "label": "02 · Alarmas (espejo PLC)",
+        "disabled": false,
+        "info": "Evaluación de umbrales y gestión del registro de alarmas."
+    },
+    {
+        "id": "l0023scada",
+        "type": "link in",
+        "z": "tab0003scada",
+        "name": "« plant",
+        "links": [
+            "l0016scada"
+        ],
+        "x": 240,
+        "y": 140,
+        "wires": [
+            [
+                "f0024scada"
+            ]
+        ]
+    },
+    {
+        "id": "l0025scada",
+        "type": "link out",
+        "z": "tab0003scada",
+        "name": "» alarms",
+        "mode": "link",
+        "links": [
+            "l0037scada",
+            "l003ascada",
+            "l003dscada"
+        ],
+        "x": 770,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "f0024scada",
+        "type": "function",
+        "z": "tab0003scada",
+        "name": "[SCADA-ALM] Espejo de alarmas del PLC",
+        "func": "// [SCADA-ALM] Espejo de las alarmas del PLC (sin umbrales locales).\n// Mantiene timestamp de primera activación para el panel.\nconst cfg = global.get('scada_cfg');\nif (!cfg || msg.topic !== 'plant') return null;\nconst bits = msg.payload.almBits || {};\nlet alarms = global.get('scada_alarms') || [];\nconst now = Date.now();\n\ncfg.tags.alarms.forEach(def => {\n    const active = !!bits[def.code];\n    let a = alarms.find(x => x.code === def.code);\n    if (active && !a)      alarms.push({ code: def.code, text: def.text, ts: now, active: true });\n    else if (active && a)  a.active = true;\n    else if (!active && a) a.active = false;\n});\nalarms = alarms.filter(a => a.active || (now - a.ts) < 3600000);  // inactivas visibles 1 h en contexto\nglobal.set('scada_alarms', alarms);\n\nconst act = alarms.filter(a => a.active);\nnode.status(act.length ? { fill: 'red', shape: 'dot', text: act.length + ' alarma(s)' }\n                       : { fill: 'green', shape: 'dot', text: 'Sin alarmas' });\nreturn { topic: 'alarms', payload: act };",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 510,
+        "y": 140,
+        "wires": [
+            [
+                "l0025scada"
+            ]
+        ]
+    },
+    {
+        "id": "tab0004scada",
+        "type": "tab",
+        "label": "03 · UI General",
+        "disabled": false,
+        "info": "Ventana General: contadores, control, OEE y alarmas."
+    },
+    {
+        "id": "b0026scada",
+        "type": "ui_button",
+        "z": "tab0004scada",
+        "name": "",
+        "group": "uig000ascada",
+        "order": 1,
+        "width": 6,
+        "height": 1,
+        "passthru": false,
+        "label": "INICIO",
+        "tooltip": "Arranca la línea",
+        "color": "",
+        "bgcolor": "#2e7d32",
+        "className": "",
+        "icon": "play_arrow",
+        "payload": "start",
+        "payloadType": "str",
+        "topic": "cmd/start",
+        "topicType": "str",
+        "x": 290,
+        "y": 80,
+        "wires": [
+            [
+                "l0029scada"
+            ]
+        ]
+    },
+    {
+        "id": "b0027scada",
+        "type": "ui_button",
+        "z": "tab0004scada",
+        "name": "",
+        "group": "uig000ascada",
+        "order": 2,
+        "width": 6,
+        "height": 1,
+        "passthru": false,
+        "label": "PARADA",
+        "tooltip": "Detiene la línea",
+        "color": "",
+        "bgcolor": "#c62828",
+        "className": "",
+        "icon": "stop",
+        "payload": "stop",
+        "payloadType": "str",
+        "topic": "cmd/stop",
+        "topicType": "str",
+        "x": 290,
+        "y": 130,
+        "wires": [
+            [
+                "l0029scada"
+            ]
+        ]
+    },
+    {
+        "id": "b0028scada",
+        "type": "ui_button",
+        "z": "tab0004scada",
+        "name": "",
+        "group": "uig000ascada",
+        "order": 3,
+        "width": 6,
+        "height": 1,
+        "passthru": false,
+        "label": "RESET ALARMAS",
+        "tooltip": "Limpia el panel de alarmas y pulsa HMI_CMD_Reset en el PLC",
+        "color": "",
+        "bgcolor": "#455a64",
+        "className": "",
+        "icon": "restore",
+        "payload": "reset",
+        "payloadType": "str",
+        "topic": "cmd/reset",
+        "topicType": "str",
+        "x": 310,
+        "y": 180,
+        "wires": [
+            [
+                "l0029scada"
+            ]
+        ]
+    },
+    {
+        "id": "l0029scada",
+        "type": "link out",
+        "z": "tab0004scada",
+        "name": "» comandos",
+        "mode": "link",
+        "links": [
+            "l0017scada"
+        ],
+        "x": 520,
+        "y": 130,
+        "wires": []
+    },
+    {
+        "id": "l002ascada",
+        "type": "link in",
+        "z": "tab0004scada",
+        "name": "« plant",
+        "links": [
+            "l0016scada"
+        ],
+        "x": 185,
+        "y": 300,
+        "wires": [
+            [
+                "f002bscada"
+            ]
+        ]
+    },
+    {
+        "id": "f002bscada",
+        "type": "function",
+        "z": "tab0004scada",
+        "name": "[SCADA-UI] Contadores → textos",
+        "func": "// [SCADA-UI] Contadores -> textos de la ventana General (8 salidas).\nif (msg.topic !== 'plant') return null;\nconst cfg = global.get('scada_cfg');\nconst p = msg.payload, c = p.counters;\nconst expected = Math.floor(cfg.targetPerHour * (p.time.op / 3600));\nlet estado = 'DETENIDA';\nif (p.line.fault) estado = '⚠ FALLA';\nelse if (p.line.setup) estado = 'EN SETUP';\nelse if (p.line.running) estado = 'EN MARCHA';\nreturn [\n    { payload: c.good },\n    { payload: c.rejNivel },\n    { payload: c.rejEtiqueta },\n    { payload: c.rejTotal },\n    { payload: c.packs },\n    { payload: c.pallets },\n    { payload: c.good + ' / ' + expected + ' bot.' },\n    { payload: estado }\n];",
+        "outputs": 8,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 400,
+        "y": 320,
+        "wires": [
+            [
+                "t002cscada"
+            ],
+            [],
+            [],
+            [
+                "t002dscada"
+            ],
+            [
+                "t002escada"
+            ],
+            [
+                "t0102scada"
+            ],
+            [
+                "t002fscada"
+            ],
+            [
+                "t0030scada"
+            ]
+        ]
+    },
+    {
+        "id": "t002cscada",
+        "type": "ui_text",
+        "z": "tab0004scada",
+        "group": "uig000bscada",
+        "order": 1,
+        "width": 6,
+        "height": 1,
+        "name": "",
+        "label": "Botellas buenas",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": "",
+        "color": "#000000",
+        "x": 800,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "t002dscada",
+        "type": "ui_text",
+        "z": "tab0004scada",
+        "group": "uig000bscada",
+        "order": 2,
+        "width": 6,
+        "height": 1,
+        "name": "",
+        "label": "Total rechazos",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": "",
+        "color": "#000000",
+        "x": 810,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "t002escada",
+        "type": "ui_text",
+        "z": "tab0004scada",
+        "group": "uig000bscada",
+        "order": 3,
+        "width": 6,
+        "height": 1,
+        "name": "",
+        "label": "Six-packs formados",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": "",
+        "color": "#000000",
+        "x": 810,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "t002fscada",
+        "type": "ui_text",
+        "z": "tab0004scada",
+        "group": "uig000bscada",
+        "order": 5,
+        "width": 6,
+        "height": 1,
+        "name": "",
+        "label": "Real / Objetivo",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": "",
+        "color": "#000000",
+        "x": 800,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "t0030scada",
+        "type": "ui_text",
+        "z": "tab0004scada",
+        "group": "uig000ascada",
+        "order": 4,
+        "width": 6,
+        "height": 1,
+        "name": "",
+        "label": "Estado de la línea",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": "",
+        "color": "#000000",
+        "x": 810,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "l0031scada",
+        "type": "link in",
+        "z": "tab0004scada",
+        "name": "« oee",
+        "links": [
+            "l0022scada"
+        ],
+        "x": 255,
+        "y": 500,
+        "wires": [
+            [
+                "f0032scada"
+            ]
+        ]
+    },
+    {
+        "id": "f0032scada",
+        "type": "function",
+        "z": "tab0004scada",
+        "name": "[SCADA-UI] KPI → gauges",
+        "func": "// [SCADA-UI] KPI -> 2 gauges (Disponibilidad, Rendimiento).\nif (msg.topic !== 'kpi') return null;\nconst k = msg.payload;\nconst pct = v => Math.round(v * 1000) / 10;\nreturn [{ payload: pct(k.A) }, { payload: pct(k.P) }];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 460,
+        "y": 500,
+        "wires": [
+            [
+                "g0033scada"
+            ],
+            [
+                "g0034scada"
+            ]
+        ]
+    },
+    {
+        "id": "g0033scada",
+        "type": "ui_gauge",
+        "z": "tab0004scada",
+        "name": "",
+        "group": "uig000cscada",
+        "order": 1,
+        "width": 4,
+        "height": 3,
+        "gtype": "gage",
+        "title": "Disponibilidad",
+        "label": "%",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "100",
+        "colors": [
+            "#ca3838",
+            "#e6e600",
+            "#00b500"
+        ],
+        "seg1": "60",
+        "seg2": "85",
+        "diff": false,
+        "className": "",
+        "x": 800,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "g0034scada",
+        "type": "ui_gauge",
+        "z": "tab0004scada",
+        "name": "",
+        "group": "uig000cscada",
+        "order": 2,
+        "width": 4,
+        "height": 3,
+        "gtype": "gage",
+        "title": "Rendimiento",
+        "label": "%",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "100",
+        "colors": [
+            "#ca3838",
+            "#e6e600",
+            "#00b500"
+        ],
+        "seg1": "60",
+        "seg2": "85",
+        "diff": false,
+        "className": "",
+        "x": 790,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "l0037scada",
+        "type": "link in",
+        "z": "tab0004scada",
+        "name": "« alarms",
+        "links": [
+            "l0025scada"
+        ],
+        "x": 290,
+        "y": 660,
+        "wires": [
+            [
+                "u0038scada"
+            ]
+        ]
+    },
+    {
+        "id": "u0038scada",
+        "type": "ui_template",
+        "z": "tab0004scada",
+        "group": "uig000dscada",
+        "name": "Panel de alarmas",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "format": "<div style=\"width:100%;max-height:240px;overflow-y:auto;\">\n  <div ng-if=\"!msg.payload.length\"\n       style=\"color:#4caf50;padding:10px;font-size:14px;\">\n    &#10004; Sin alarmas activas\n  </div>\n  <div ng-repeat=\"a in msg.payload\"\n       style=\"background:#b71c1c;color:#fff;border-radius:4px;padding:6px 10px;margin:4px 0;font-size:13px;line-height:1.35;\">\n    <b>{{a.code}}</b> &mdash; {{a.text}}<br/>\n    <span style=\"font-size:11px;opacity:.8;\">Activa desde {{a.ts | date:'HH:mm:ss'}}</span>\n  </div>\n</div>",
+        "storeOutMessages": false,
+        "fwdInMessages": false,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 530,
+        "y": 660,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "t0102scada",
+        "type": "ui_text",
+        "z": "tab0004scada",
+        "group": "uig000bscada",
+        "order": 4,
+        "width": 6,
+        "height": 1,
+        "name": "",
+        "label": "Pallets completos",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": "",
+        "color": "#000000",
+        "x": 1010,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "tab0005scada",
+        "type": "tab",
+        "label": "04 · UI Mímico",
+        "disabled": false,
+        "info": "Ventana de Proceso: mímico SVG de la banda + alarmas."
+    },
+    {
+        "id": "l0039scada",
+        "type": "link in",
+        "z": "tab0005scada",
+        "name": "« plant",
+        "links": [
+            "l0016scada"
+        ],
+        "x": 110,
+        "y": 120,
+        "wires": [
+            [
+                "f003bscada"
+            ]
+        ]
+    },
+    {
+        "id": "l003ascada",
+        "type": "link in",
+        "z": "tab0005scada",
+        "name": "« alarms",
+        "links": [
+            "l0025scada"
+        ],
+        "x": 110,
+        "y": 180,
+        "wires": [
+            [
+                "f003bscada"
+            ]
+        ]
+    },
+    {
+        "id": "f003bscada",
+        "type": "function",
+        "z": "tab0005scada",
+        "name": "[SCADA-MIMIC] Estado → comandos SVG",
+        "func": "// [SCADA-MIMIC] Estado de planta / alarmas -> comandos set_style / update_text del ui_svg.\n// Colores por código DINT de estación: 0 gris, 10 azul, 20 verde, 30 cian, 90 rojo.\nconst BODY = { 0: '#616161', 10: '#1e88e5', 20: '#43a047', 30: '#26c6da', 90: '#e53935' };\nconst LAMP = { 0: '#9e9e9e', 10: '#64b5f6', 20: '#76ff03', 30: '#80deea', 90: '#ff1744' };\n\nif (msg.topic === 'plant') {\n    const cfg = global.get('scada_cfg');\n    const p = msg.payload;\n    const cmds = [];\n    p.stations.forEach((st, i) => {\n        const n = i + 1;\n        cmds.push({ command: 'set_style', selector: '#Station' + n + '_1',    attributeName: 'fill', attributeValue: BODY[st.code] || '#616161' });\n        cmds.push({ command: 'set_style', selector: '#Station' + n + '_lamp', attributeName: 'fill', attributeValue: LAMP[st.code] || '#9e9e9e' });\n        cmds.push({ command: 'update_text', selector: '#st' + n + '_value',\n                    textContent: (cfg.stateCodes[st.code] || ('COD ' + st.code)) });\n    });\n    cmds.push({ command: 'update_text', selector: '#output_value',  textContent: String(p.counters.good) });\n    cmds.push({ command: 'update_text', selector: '#packs_value',   textContent: String(p.counters.packs) });\n    cmds.push({ command: 'update_text', selector: '#pallets_value', textContent: String(p.counters.pallets) });\n    cmds.push({ command: 'update_text', selector: '#rej_value',     textContent: String(p.counters.rejTotal) });\n    cmds.push({ command: 'set_style', selector: '#belt_arrows', attributeName: 'opacity', attributeValue: p.line.running ? '1' : '0.15' });\n    let txt = 'LÍNEA DETENIDA', col = '#757575';\n    if (p.line.fault)       { txt = '⚠ FALLA DE LÍNEA'; col = '#b71c1c'; }\n    else if (p.line.setup)  { txt = 'LÍNEA EN SETUP';   col = '#f9a825'; }\n    else if (p.line.running){ txt = 'LÍNEA EN MARCHA';  col = '#2e7d32'; }\n    cmds.push({ command: 'update_text', selector: '#line_state_value', textContent: txt });\n    cmds.push({ command: 'set_style', selector: '#line_state_box', attributeName: 'fill', attributeValue: col });\n    return { payload: cmds };\n}\n\nif (msg.topic === 'alarms') {\n    const act = msg.payload || [];\n    const txt = act.length ? ('\\u26A0 ' + act[0].text + (act.length > 1 ? '  (+' + (act.length - 1) + ' más)' : '')) : '';\n    return { payload: [\n        { command: 'set_style', selector: '#alarm_banner', attributeName: 'display', attributeValue: act.length ? 'inline' : 'none' },\n        { command: 'set_style', selector: '#alarm_text',   attributeName: 'display', attributeValue: act.length ? 'inline' : 'none' },\n        { command: 'update_text', selector: '#alarm_text', textContent: txt }\n    ] };\n}\nreturn null;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 430,
+        "y": 140,
+        "wires": [
+            [
+                "s003cscada"
+            ]
+        ]
+    },
+    {
+        "id": "s003cscada",
+        "type": "ui_svg_graphics",
+        "z": "tab0005scada",
+        "group": "uig000escada",
+        "order": 1,
+        "width": "20",
+        "height": "8",
+        "svgString": "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"100%\" height=\"100%\" viewBox=\"0 0 1280 330\" preserveAspectRatio=\"xMidYMid meet\"><rect id=\"svgEditorBackground\" x=\"0\" y=\"0\" width=\"1280\" height=\"330\" style=\"fill:none;stroke:none\"/>\n<rect x=\"0\" y=\"0\" width=\"1280\" height=\"330\" rx=\"8\" style=\"fill:#263238;\"/>\n<rect id=\"alarm_banner\" x=\"30\" y=\"12\" width=\"800\" height=\"30\" rx=\"4\" style=\"fill:#b71c1c;display:none;\"/>\n<text id=\"alarm_text\" x=\"42\" y=\"32\" style=\"fill:#ffffff;display:none;font-family:sans-serif;font-size:14px;font-weight:bold;\">⚠ Alarma</text>\n<rect id=\"line_state_box\" x=\"1040\" y=\"12\" width=\"210\" height=\"30\" rx=\"4\" style=\"fill:#757575;stroke:#455a64;\"/>\n<text id=\"line_state_value\" x=\"1145\" y=\"32\" text-anchor=\"middle\" style=\"fill:#ffffff;font-family:sans-serif;font-size:13px;font-weight:bold;\">LÍNEA DETENIDA</text>\n<text x=\"440\" y=\"64\" text-anchor=\"middle\" style=\"fill:#90a4ae;font-family:sans-serif;font-size:15px;letter-spacing:1px;\">LÍNEA DE EMBOTELLADO · 7 ESTACIONES</text>\n<rect id=\"belt\" x=\"35\" y=\"226\" width=\"1210\" height=\"22\" rx=\"5\" style=\"fill:#546e7a;stroke:#37474f;stroke-width:2;\"/>\n<circle cx=\"65\" cy=\"237\" r=\"7\" style=\"fill:#90a4ae;stroke:#37474f;\"/>\n<circle cx=\"130\" cy=\"237\" r=\"7\" style=\"fill:#90a4ae;stroke:#37474f;\"/>\n<circle cx=\"195\" cy=\"237\" r=\"7\" style=\"fill:#90a4ae;stroke:#37474f;\"/>\n<circle cx=\"260\" cy=\"237\" r=\"7\" style=\"fill:#90a4ae;stroke:#37474f;\"/>\n<circle cx=\"325\" cy=\"237\" r=\"7\" style=\"fill:#90a4ae;stroke:#37474f;\"/>\n<circle cx=\"390\" cy=\"237\" r=\"7\" style=\"fill:#90a4ae;stroke:#37474f;\"/>\n<circle cx=\"455\" cy=\"237\" r=\"7\" style=\"fill:#90a4ae;stroke:#37474f;\"/>\n<circle cx=\"520\" cy=\"237\" r=\"7\" style=\"fill:#90a4ae;stroke:#37474f;\"/>\n<circle cx=\"585\" cy=\"237\" r=\"7\" style=\"fill:#90a4ae;stroke:#37474f;\"/>\n<circle cx=\"650\" cy=\"237\" r=\"7\" style=\"fill:#90a4ae;stroke:#37474f;\"/>\n<circle cx=\"715\" cy=\"237\" r=\"7\" style=\"fill:#90a4ae;stroke:#37474f;\"/>\n<circle cx=\"780\" cy=\"237\" r=\"7\" style=\"fill:#90a4ae;stroke:#37474f;\"/>\n<circle cx=\"845\" cy=\"237\" r=\"7\" style=\"fill:#90a4ae;stroke:#37474f;\"/>\n<circle cx=\"910\" cy=\"237\" r=\"7\" style=\"fill:#90a4ae;stroke:#37474f;\"/>\n<circle cx=\"975\" cy=\"237\" r=\"7\" style=\"fill:#90a4ae;stroke:#37474f;\"/>\n<circle cx=\"1040\" cy=\"237\" r=\"7\" style=\"fill:#90a4ae;stroke:#37474f;\"/>\n<circle cx=\"1105\" cy=\"237\" r=\"7\" style=\"fill:#90a4ae;stroke:#37474f;\"/>\n<circle cx=\"1170\" cy=\"237\" r=\"7\" style=\"fill:#90a4ae;stroke:#37474f;\"/>\n<circle cx=\"1235\" cy=\"237\" r=\"7\" style=\"fill:#90a4ae;stroke:#37474f;\"/>\n<g id=\"belt_arrows\" style=\"opacity:0.15;\"><polygon points=\"85,258 101,264 85,270\" style=\"fill:#cfd8dc;\"/><polygon points=\"180,258 196,264 180,270\" style=\"fill:#cfd8dc;\"/><polygon points=\"275,258 291,264 275,270\" style=\"fill:#cfd8dc;\"/><polygon points=\"370,258 386,264 370,270\" style=\"fill:#cfd8dc;\"/><polygon points=\"465,258 481,264 465,270\" style=\"fill:#cfd8dc;\"/><polygon points=\"560,258 576,264 560,270\" style=\"fill:#cfd8dc;\"/><polygon points=\"655,258 671,264 655,270\" style=\"fill:#cfd8dc;\"/><polygon points=\"750,258 766,264 750,270\" style=\"fill:#cfd8dc;\"/><polygon points=\"845,258 861,264 845,270\" style=\"fill:#cfd8dc;\"/><polygon points=\"940,258 956,264 940,270\" style=\"fill:#cfd8dc;\"/><polygon points=\"1035,258 1051,264 1035,270\" style=\"fill:#cfd8dc;\"/><polygon points=\"1130,258 1146,264 1130,270\" style=\"fill:#cfd8dc;\"/><polygon points=\"1225,258 1241,264 1225,270\" style=\"fill:#cfd8dc;\"/></g>\n\n<rect id=\"Station1_1\" x=\"65\" y=\"118\" width=\"100\" height=\"98\" rx=\"6\" style=\"fill:#616161;stroke:#37474f;stroke-width:2;\"/>\n<rect x=\"79\" y=\"136\" width=\"50\" height=\"34\" rx=\"3\" style=\"fill:#b0bec5;stroke:#78909c;\"/>\n<circle id=\"Station1_lamp\" cx=\"149\" cy=\"132\" r=\"7\" style=\"fill:#bdbdbd;stroke:#37474f;\"/>\n<text x=\"115\" y=\"90\" text-anchor=\"middle\" style=\"fill:#eceff1;font-family:sans-serif;font-size:11px;font-weight:bold;\">LLENADORA</text>\n<text id=\"st1_value\" x=\"115\" y=\"276\" text-anchor=\"middle\" style=\"fill:#ffe082;font-family:sans-serif;font-size:11px;font-weight:bold;\">DESHABILITADA</text>\n\n<rect id=\"Station2_1\" x=\"235\" y=\"118\" width=\"100\" height=\"98\" rx=\"6\" style=\"fill:#616161;stroke:#37474f;stroke-width:2;\"/>\n<rect x=\"249\" y=\"136\" width=\"50\" height=\"34\" rx=\"3\" style=\"fill:#b0bec5;stroke:#78909c;\"/>\n<circle id=\"Station2_lamp\" cx=\"319\" cy=\"132\" r=\"7\" style=\"fill:#bdbdbd;stroke:#37474f;\"/>\n<text x=\"285\" y=\"90\" text-anchor=\"middle\" style=\"fill:#eceff1;font-family:sans-serif;font-size:11px;font-weight:bold;\">TAPADORA</text>\n<text id=\"st2_value\" x=\"285\" y=\"276\" text-anchor=\"middle\" style=\"fill:#ffe082;font-family:sans-serif;font-size:11px;font-weight:bold;\">DESHABILITADA</text>\n\n<rect id=\"Station3_1\" x=\"405\" y=\"118\" width=\"100\" height=\"98\" rx=\"6\" style=\"fill:#616161;stroke:#37474f;stroke-width:2;\"/>\n<rect x=\"419\" y=\"136\" width=\"50\" height=\"34\" rx=\"3\" style=\"fill:#b0bec5;stroke:#78909c;\"/>\n<circle id=\"Station3_lamp\" cx=\"489\" cy=\"132\" r=\"7\" style=\"fill:#bdbdbd;stroke:#37474f;\"/>\n<text x=\"455\" y=\"90\" text-anchor=\"middle\" style=\"fill:#eceff1;font-family:sans-serif;font-size:11px;font-weight:bold;\">INSP. NIV/TAPA</text>\n<text id=\"st3_value\" x=\"455\" y=\"276\" text-anchor=\"middle\" style=\"fill:#ffe082;font-family:sans-serif;font-size:11px;font-weight:bold;\">DESHABILITADA</text>\n\n<rect id=\"Station4_1\" x=\"575\" y=\"118\" width=\"100\" height=\"98\" rx=\"6\" style=\"fill:#616161;stroke:#37474f;stroke-width:2;\"/>\n<rect x=\"589\" y=\"136\" width=\"50\" height=\"34\" rx=\"3\" style=\"fill:#b0bec5;stroke:#78909c;\"/>\n<circle id=\"Station4_lamp\" cx=\"659\" cy=\"132\" r=\"7\" style=\"fill:#bdbdbd;stroke:#37474f;\"/>\n<text x=\"625\" y=\"90\" text-anchor=\"middle\" style=\"fill:#eceff1;font-family:sans-serif;font-size:11px;font-weight:bold;\">ETIQ/COD</text>\n<text id=\"st4_value\" x=\"625\" y=\"276\" text-anchor=\"middle\" style=\"fill:#ffe082;font-family:sans-serif;font-size:11px;font-weight:bold;\">DESHABILITADA</text>\n\n<rect id=\"Station5_1\" x=\"745\" y=\"118\" width=\"100\" height=\"98\" rx=\"6\" style=\"fill:#616161;stroke:#37474f;stroke-width:2;\"/>\n<rect x=\"759\" y=\"136\" width=\"50\" height=\"34\" rx=\"3\" style=\"fill:#b0bec5;stroke:#78909c;\"/>\n<circle id=\"Station5_lamp\" cx=\"829\" cy=\"132\" r=\"7\" style=\"fill:#bdbdbd;stroke:#37474f;\"/>\n<text x=\"795\" y=\"90\" text-anchor=\"middle\" style=\"fill:#eceff1;font-family:sans-serif;font-size:11px;font-weight:bold;\">INSP. FINAL</text>\n<text id=\"st5_value\" x=\"795\" y=\"276\" text-anchor=\"middle\" style=\"fill:#ffe082;font-family:sans-serif;font-size:11px;font-weight:bold;\">DESHABILITADA</text>\n\n<rect id=\"Station6_1\" x=\"915\" y=\"118\" width=\"100\" height=\"98\" rx=\"6\" style=\"fill:#616161;stroke:#37474f;stroke-width:2;\"/>\n<rect x=\"929\" y=\"136\" width=\"50\" height=\"34\" rx=\"3\" style=\"fill:#b0bec5;stroke:#78909c;\"/>\n<circle id=\"Station6_lamp\" cx=\"999\" cy=\"132\" r=\"7\" style=\"fill:#bdbdbd;stroke:#37474f;\"/>\n<text x=\"965\" y=\"90\" text-anchor=\"middle\" style=\"fill:#eceff1;font-family:sans-serif;font-size:11px;font-weight:bold;\">EMPAQUE</text>\n<text id=\"st6_value\" x=\"965\" y=\"276\" text-anchor=\"middle\" style=\"fill:#ffe082;font-family:sans-serif;font-size:11px;font-weight:bold;\">DESHABILITADA</text>\n\n<rect id=\"Station7_1\" x=\"1085\" y=\"118\" width=\"100\" height=\"98\" rx=\"6\" style=\"fill:#616161;stroke:#37474f;stroke-width:2;\"/>\n<rect x=\"1099\" y=\"136\" width=\"50\" height=\"34\" rx=\"3\" style=\"fill:#b0bec5;stroke:#78909c;\"/>\n<circle id=\"Station7_lamp\" cx=\"1169\" cy=\"132\" r=\"7\" style=\"fill:#bdbdbd;stroke:#37474f;\"/>\n<text x=\"1135\" y=\"90\" text-anchor=\"middle\" style=\"fill:#eceff1;font-family:sans-serif;font-size:11px;font-weight:bold;\">PALETIZADO</text>\n<text id=\"st7_value\" x=\"1135\" y=\"276\" text-anchor=\"middle\" style=\"fill:#ffe082;font-family:sans-serif;font-size:11px;font-weight:bold;\">DESHABILITADA</text>\n<text x=\"40\" y=\"306\" style=\"fill:#b0bec5;font-family:sans-serif;font-size:12px;\">Botellas buenas:</text>\n<text id=\"output_value\" x=\"150\" y=\"306\" style=\"fill:#76ff03;font-family:sans-serif;font-size:15px;font-weight:bold;\">0</text>\n<text x=\"240\" y=\"306\" style=\"fill:#b0bec5;font-family:sans-serif;font-size:12px;\">Six-packs:</text>\n<text id=\"packs_value\" x=\"312\" y=\"306\" style=\"fill:#eceff1;font-family:sans-serif;font-size:15px;font-weight:bold;\">0</text>\n<text x=\"400\" y=\"306\" style=\"fill:#b0bec5;font-family:sans-serif;font-size:12px;\">Pallets:</text>\n<text id=\"pallets_value\" x=\"455\" y=\"306\" style=\"fill:#eceff1;font-family:sans-serif;font-size:15px;font-weight:bold;\">0</text>\n<text x=\"560\" y=\"306\" style=\"fill:#b0bec5;font-family:sans-serif;font-size:12px;\">Rechazos:</text>\n<text id=\"rej_value\" x=\"630\" y=\"306\" style=\"fill:#ef9a9a;font-family:sans-serif;font-size:15px;font-weight:bold;\">0</text>\n<text x=\"720\" y=\"306\" style=\"fill:#607d8b;font-family:sans-serif;font-size:9px;\"/>\n</svg>",
+        "clickableShapes": [],
+        "javascriptHandlers": [],
+        "smilAnimations": [],
+        "bindings": [],
+        "showCoordinates": false,
+        "autoFormatAfterEdit": false,
+        "showBrowserErrors": false,
+        "showBrowserEvents": false,
+        "enableJsDebugging": false,
+        "sendMsgWhenLoaded": false,
+        "noClickWhenDblClick": false,
+        "outputField": "payload",
+        "editorUrl": "//drawsvg.org/drawsvg.html",
+        "directory": "",
+        "panning": "disabled",
+        "zooming": "disabled",
+        "panOnlyWhenZoomed": false,
+        "doubleClickZoomEnabled": false,
+        "mouseWheelZoomEnabled": false,
+        "dblClickZoomPercentage": 150,
+        "cssString": "div.ui-svg svg{ color: var(--nr-dashboard-widgetColor); fill: currentColor !important; } div.ui-svg path { fill: inherit; }",
+        "name": "Mímico línea de embotellado (7 estaciones)",
+        "x": 850,
+        "y": 140,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "l003dscada",
+        "type": "link in",
+        "z": "tab0005scada",
+        "name": "« alarms",
+        "links": [
+            "l0025scada"
+        ],
+        "x": 110,
+        "y": 280,
+        "wires": [
+            [
+                "u003escada"
+            ]
+        ]
+    },
+    {
+        "id": "u003escada",
+        "type": "ui_template",
+        "z": "tab0005scada",
+        "group": "uig000fscada",
+        "name": "Panel de alarmas (Proceso)",
+        "order": 1,
+        "width": "0",
+        "height": "0",
+        "format": "<div style=\"width:100%;max-height:240px;overflow-y:auto;\">\n  <div ng-if=\"!msg.payload.length\"\n       style=\"color:#4caf50;padding:10px;font-size:14px;\">\n    &#10004; Sin alarmas activas\n  </div>\n  <div ng-repeat=\"a in msg.payload\"\n       style=\"background:#b71c1c;color:#fff;border-radius:4px;padding:6px 10px;margin:4px 0;font-size:13px;line-height:1.35;\">\n    <b>{{a.code}}</b> &mdash; {{a.text}}<br/>\n    <span style=\"font-size:11px;opacity:.8;\">Activa desde {{a.ts | date:'HH:mm:ss'}}</span>\n  </div>\n</div>",
+        "storeOutMessages": false,
+        "fwdInMessages": false,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 420,
+        "y": 280,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "tab0006scada",
+        "type": "tab",
+        "label": "05 · UI Histórico",
+        "disabled": false,
+        "info": "Tendencias históricas con persistencia en contexto de archivo."
+    },
+    {
+        "id": "i003fscada",
+        "type": "inject",
+        "z": "tab0006scada",
+        "name": "Muestreo cada 15 s",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "15",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "true",
+        "payloadType": "bool",
+        "x": 220,
+        "y": 160,
+        "wires": [
+            [
+                "f0040scada"
+            ]
+        ]
+    },
+    {
+        "id": "f0040scada",
+        "type": "function",
+        "z": "tab0006scada",
+        "name": "[SCADA-HIST] Muestrear tendencias",
+        "func": "// [SCADA-HIST] Muestreo para tendencias locales (solo memoria del chart; el\n// histórico de largo plazo se envía a Azure vía Ignition, fuera de este flujo).\nconst p = global.get('scada_plant');\nif (!p) return null;\nconst c = p.counters;\nconst tot = c.good + c.rejTotal;\nconst defPct = tot > 0 ? 100 * c.rejTotal / tot : 0;\nreturn [\n    { topic: 'Producción',  payload: c.good },\n    { topic: 'Defectos %',  payload: +defPct.toFixed(1) }\n];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 520,
+        "y": 160,
+        "wires": [
+            [
+                "h0043scada"
+            ],
+            [
+                "h0045scada"
+            ]
+        ]
+    },
+    {
+        "id": "h0043scada",
+        "type": "ui_chart",
+        "z": "tab0006scada",
+        "name": "",
+        "group": "uig0010scada",
+        "order": 1,
+        "width": "14",
+        "height": "5",
+        "label": "Producción acumulada (botellas buenas)",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm",
+        "interpolate": "linear",
+        "nodata": "Esperando datos…",
+        "dot": false,
+        "ymin": "0",
+        "ymax": "",
+        "removeOlder": "24",
+        "removeOlderPoints": "5760",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 880,
+        "y": 120,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "h0045scada",
+        "type": "ui_chart",
+        "z": "tab0006scada",
+        "name": "",
+        "group": "uig0010scada",
+        "order": 3,
+        "width": "14",
+        "height": "5",
+        "label": "Tasa de defectos (%)",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm",
+        "interpolate": "linear",
+        "nodata": "Esperando datos…",
+        "dot": false,
+        "ymin": "0",
+        "ymax": "100",
+        "removeOlder": "24",
+        "removeOlderPoints": "5760",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 860,
+        "y": 180,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8c2283552180792c",
+        "type": "eth-ip endpoint",
+        "address": "192.168.11.28",
+        "slot": "2",
+        "cycletime": 500,
+        "name": "Jeison",
+        "vartable": {
+            "": {
+                "HMI_CMD_Start": {
+                    "type": "BOOL"
+                },
+                "HMI_CMD_Stop": {
+                    "type": "BOOL"
+                },
+                "HMI_CMD_Reset": {
+                    "type": "BOOL"
+                },
+                "HMI_Linea_Running": {
+                    "type": "BOOL"
+                },
+                "HMI_Linea_Fault": {
+                    "type": "BOOL"
+                },
+                "HMI_Linea_EnSetup": {
+                    "type": "BOOL"
+                },
+                "ALM_General_FallaLinea": {
+                    "type": "BOOL"
+                },
+                "ALM_LLEN_Falla": {
+                    "type": "BOOL"
+                },
+                "ALM_TAP_Falla": {
+                    "type": "BOOL"
+                },
+                "ALM_ETICOD_Falla": {
+                    "type": "BOOL"
+                },
+                "ALM_INS_FIN_Falla": {
+                    "type": "BOOL"
+                },
+                "ALM_EMP_Falla": {
+                    "type": "BOOL"
+                },
+                "ALM_PAL_Falla": {
+                    "type": "BOOL"
+                },
+                "HMI_LLEN_Estado": {
+                    "type": "DINT"
+                },
+                "HMI_TAP_Estado": {
+                    "type": "DINT"
+                },
+                "HMI_INS_NIV_Estado": {
+                    "type": "DINT"
+                },
+                "HMI_ETICOD_Estado": {
+                    "type": "DINT"
+                },
+                "HMI_INS_FIN_Estado": {
+                    "type": "DINT"
+                },
+                "HMI_EMP_Estado": {
+                    "type": "DINT"
+                },
+                "HMI_PAL_Estado": {
+                    "type": "DINT"
+                },
+                "HMI_PROD_BotellasBuenas": {
+                    "type": "DINT"
+                },
+                "HMI_PROD_RechazoNivelTapa": {
+                    "type": "DINT"
+                },
+                "HMI_PROD_RechazoEtiquetaCodigo": {
+                    "type": "DINT"
+                },
+                "HMI_PROD_TotalRechazos": {
+                    "type": "DINT"
+                },
+                "HMI_PROD_PacksFormados": {
+                    "type": "DINT"
+                },
+                "HMI_PROD_PalletsCompletos": {
+                    "type": "DINT"
+                }
+            }
+        }
+    },
+    {
+        "id": "5dce1354a1b1dc12",
+        "type": "OpcUa-Endpoint",
+        "name": "Jeison",
+        "endpoint": "opc.tcp://192.168.11.28:62541",
+        "secpol": "None",
+        "secmode": "None",
+        "none": true,
+        "login": false,
+        "usercert": false,
+        "usercertificate": "",
+        "userprivatekey": ""
+    },
+    {
+        "id": "uig000ascada",
+        "type": "ui_group",
+        "name": "Control",
+        "tab": "uit0007scada",
+        "order": 1,
+        "disp": true,
+        "width": "6",
+        "collapse": false
+    },
+    {
+        "id": "uig000bscada",
+        "type": "ui_group",
+        "name": "Producción",
+        "tab": "uit0007scada",
+        "order": 2,
+        "disp": true,
+        "width": 6,
+        "collapse": false
+    },
+    {
+        "id": "uig000cscada",
+        "type": "ui_group",
+        "name": "Indicadores en tiempo real",
+        "tab": "uit0007scada",
+        "order": 3,
+        "disp": true,
+        "width": "8",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "uig000dscada",
+        "type": "ui_group",
+        "name": "Alarmas activas",
+        "tab": "uit0007scada",
+        "order": 4,
+        "disp": true,
+        "width": "20",
+        "collapse": false
+    },
+    {
+        "id": "uig000escada",
+        "type": "ui_group",
+        "name": "Mímico del proceso",
+        "tab": "uit0008scada",
+        "order": 1,
+        "disp": true,
+        "width": "20",
+        "collapse": false
+    },
+    {
+        "id": "uig000fscada",
+        "type": "ui_group",
+        "name": "Alarmas activas",
+        "tab": "uit0008scada",
+        "order": 2,
+        "disp": true,
+        "width": "20",
+        "collapse": false
+    },
+    {
+        "id": "uig0010scada",
+        "type": "ui_group",
+        "name": "Tendencias (últimas 24 h)",
+        "tab": "uit0009scada",
+        "order": 1,
+        "disp": true,
+        "width": "14",
+        "collapse": false
+    },
+    {
+        "id": "uit0007scada",
+        "type": "ui_tab",
+        "name": "General",
+        "icon": "dashboard",
+        "order": 1,
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "uit0008scada",
+        "type": "ui_tab",
+        "name": "Proceso",
+        "icon": "settings",
+        "order": 2,
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "uit0009scada",
+        "type": "ui_tab",
+        "name": "Histórico",
+        "icon": "timeline",
+        "order": 3,
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "9ac207cfba4c9d82",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-contrib-cip-ethernet-ip": "1.1.3",
+            "node-red-contrib-opcua": "0.2.348",
+            "node-red-dashboard": "3.6.6",
+            "node-red-contrib-ui-svg": "2.3.3"
+        }
+    }
+]
