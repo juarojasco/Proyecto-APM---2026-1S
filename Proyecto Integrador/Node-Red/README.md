@@ -21,7 +21,7 @@ Como resultado de esta integración, se desarrolló un **SCADA (Supervisory Cont
 El siguiente flujo muestra la arquitectura implementada en **Node-RED**, encargada de gestionar el intercambio de datos entre los diferentes programas y sistemas del proyecto.
 
 <p align="center">
-  <img src="./Imagenes/flujo.jpeg" alt="Flujo Node-RED" width="95%">
+  <img src="./Imagenes/flujo.png" alt="Flujo Node-RED" width="95%">
 </p>
 
 ---
