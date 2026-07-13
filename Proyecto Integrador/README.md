@@ -18,7 +18,7 @@ Como complemento, se desarrolla un Manufacturing Execution System (MES) basado e
 | **Lógica de Control** | Programas, diagramas y documentación relacionada con la lógica de control implementada para el funcionamiento del sistema automatizado.                                        |
 | **ABB Robot Studio**  | Modelos, estaciones de trabajo y programas desarrollados en ABB RobotStudio para la simulación y programación del robot industrial.                                            |
 | **Node-RED**          | Flujos, interfaces y configuraciones desarrolladas en Node-RED para la comunicación, supervisión e integración de los diferentes componentes del proyecto.                     |
-| **Azure** | Desarrollo e integración del **Manufacturing Execution System (MES)** utilizando servicios de Microsoft Azure, incluyendo aplicaciones, bases de datos, APIs y comunicación con los diferentes componentes del sistema automatizado. |
+| **MES** | Aplicación MES desarrollada en React.js y Node.js para la supervisión de la producción, cálculo del OEE e integración con Microsoft Azure e Ignition.|
 
 ---
 
