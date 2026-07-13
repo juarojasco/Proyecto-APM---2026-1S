@@ -21,7 +21,7 @@ Como resultado de esta integración, se desarrolló un **SCADA (Supervisory Cont
 El siguiente flujo muestra la arquitectura implementada en **Node-RED**, encargada de gestionar el intercambio de datos entre los diferentes programas y sistemas del proyecto.
 
 <p align="center">
-  <img src="./Imagenes/flujo.png" alt="Flujo Node-RED" width="95%">
+  <img src="./Imagenes/flujo.jpeg" alt="Flujo Node-RED" width="95%">
 </p>
 
 ---
@@ -41,7 +41,7 @@ Esta vista presenta un resumen del estado global del sistema, incluyendo:
 * Visualización de alarmas del sistema.
 
 <p align="center">
-  <img src="./Imagenes/general.png" alt="Pantalla General" width="90%">
+  <img src="./Imagenes/general.jpeg" alt="Pantalla General" width="90%">
 </p>
 
 ---
@@ -58,7 +58,7 @@ Incluye:
 * Seguimiento del flujo de producción.
 
 <p align="center">
-  <img src="./Imagenes/proceso.png" alt="Pantalla de Proceso" width="90%">
+  <img src="./Imagenes/proceso.jpeg" alt="Pantalla de Proceso" width="90%">
 </p>
 
 ---
@@ -74,7 +74,7 @@ Se presentan indicadores como:
 * Evolución temporal de los principales indicadores del sistema.
 
 <p align="center">
-  <img src="./Imagenes/historico.png" alt="Pantalla Histórica" width="90%">
+  <img src="./Imagenes/historico.jpeg" alt="Pantalla Histórica" width="90%">
 </p>
 
 ---
