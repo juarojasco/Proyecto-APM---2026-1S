@@ -54,7 +54,7 @@ El sistema MES permite:
 
 ---
 
-## 🔗 Integración con el proyecto
+## Integración con el proyecto
 
 El MES constituye la capa de gestión del proyecto de **Industria 4.0**, integrando la información generada por los sistemas de automatización y supervisión para ofrecer una visión consolidada del estado de la producción.
 
