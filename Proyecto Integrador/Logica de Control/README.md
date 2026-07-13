@@ -14,7 +14,7 @@ Para el desarrollo del sistema de control se empleó una metodología basada en 
 |  **Narrativa de Control.md** | Presenta la secuencia detallada de operación del sistema, describiendo el comportamiento esperado de cada estación, sensor y actuador durante el ciclo de producción.           |
 |  **Proyecto_APM.ACD**        | Proyecto desarrollado en **Studio 5000 Logix Designer**, que contiene la implementación completa de la lógica de control del sistema.                                           |
 |  **Grafcet**                 | Diagramas GRAFCET correspondientes a las diferentes etapas del proceso, utilizados como base para el diseño de la lógica de control.                                            |
-|  **Ladder**                  | Diagramas Ladder implementados a partir de los GRAFCET, representando la lógica programada en el PLC para controlar el sistema automatizado.                                    |
+|  **Reporte Studio 5000.pdf**                  | Conjunto de Variable Tag y diagramas Ladder implementados a partir de los GRAFCET, representando la lógica programada en el PLC para controlar el sistema automatizado.                                     |
 
 ---
 
