@@ -14,7 +14,7 @@ El MES fue desarrollado utilizando **React.js** para el frontend y **Node.js** p
 
 ## Acceso al Repositorio de MES
 
-**  https://github.com/Miguel-Parrado/AzureAPM**
+**https://github.com/Miguel-Parrado/AzureAPM**
 
 ---
 
