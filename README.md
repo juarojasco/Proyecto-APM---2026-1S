@@ -29,7 +29,7 @@ Proyecto-APM--2026-1S
 ├── Proyecto Integrador/
 │   ├── Modelo de Negocios
 │   ├── Plant Simulation
-│   ├── NX Files
+│   ├── NX
 │   ├── Modelos 3D
 │   ├── Lógica de Control
 │   ├── ABB RobotStudio
