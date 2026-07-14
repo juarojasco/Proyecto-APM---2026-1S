@@ -15,11 +15,11 @@ Como complemento, se desarrolla un Manufacturing Execution System (MES) basado e
 | **Modelo de Negocios**  | Incluye el modelo canvas del proyecto.                                      |
 | **Plant Simulation**  | Modelos de simulación del sistema de producción desarrollados en Siemens Tecnomatix Plant Simulation, junto con los resultados obtenidos.                                      |
 | **NX Files**          | Modelos y simulaciones desarrollados en Siemens NX Mechatronics Concept Designer (MCD), incluyendo la integración de mecanismos, sensores, actuadores y secuencias de control. |
-| **Modelos 3D**        | Modelos CAD y componentes utilizados para construir el sistema de manufactura y sus diferentes estaciones.                                                                     |
 | **Lógica de Control** | Programas, diagramas y documentación relacionada con la lógica de control implementada para el funcionamiento del sistema automatizado.                                        |
 | **ABB Robot Studio**  | Modelos, estaciones de trabajo y programas desarrollados en ABB RobotStudio para la simulación y programación del robot industrial.                                            |
 | **Node-RED**          | Flujos, interfaces y configuraciones desarrolladas en Node-RED para la comunicación, supervisión e integración de los diferentes componentes del proyecto.                     |
 | **MES** | Aplicación MES desarrollada en React.js y Node.js para la supervisión de la producción, cálculo del OEE e integración con Microsoft Azure e Ignition.|
+| **Informe_Proceso_Apredizaje_APM**        | Infome que contiene las reflexiones sobre el proceso de aprendizaje tanto como grupo como individualmente.      |
 
 ---
 
